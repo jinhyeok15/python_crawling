@@ -15,6 +15,11 @@ class Publisher(metaclass=ABCMeta):
     def getElem(self, key):
         pass
 
+    @staticmethod
+    def get_instance(name):
+        if name=='yes24':
+            return Yes24()
+
 
 class Yes24(Publisher):
     def __init__(self) -> None:
@@ -43,6 +48,6 @@ class Yes24(Publisher):
     
 
 if __name__ == "__main__":
-    yes24 = Yes24()
+    yes24 = Publisher.get_instance('yes24')
     yes24.next().next().next()
     print(yes24.params['PageNumber'])

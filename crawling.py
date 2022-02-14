@@ -1,4 +1,4 @@
-from publisher import Yes24
+from publisher import Publisher
 from bs4 import BeautifulSoup
 from review import Review
 import requests
@@ -69,7 +69,7 @@ class Crawler(Review):
         return self
 
 if __name__ == "__main__":
-    yes24 = Yes24()
+    yes24 = Publisher.get_instance('yes24')
     crawler = Crawler("http://www.yes24.com/Product/Goods/1940233", yes24)
     review_data = crawler.exec()
     print(review_data.show())
