@@ -1,5 +1,7 @@
 from publisher import Yes24
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from urllib.parse import urlencode
 from review import Review
 import requests
 
@@ -12,9 +14,12 @@ class Crawler(Review):
         self.review_count = 0
 
     def get_soup(self):
-        req = requests.get(self.url, params=self.publisher.params)
-        html = req.text
+        driver = webdriver.Chrome('chromedriver')
+        query_string = urlencode(self.publisher.params)
+        driver.get(self.url+query_string)
+        html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
+        driver.close()
         return soup
     
     def work(self):
@@ -42,6 +47,7 @@ class Crawler(Review):
 
                 elem = self.publisher.getElem('content')
                 res_list = soup.find_all(elem[0], {elem[1], elem[2]})
+                print(res_list[i])
                 self.set_review('content', res_list[i].text)
 
                 self.commit()
