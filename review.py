@@ -1,22 +1,26 @@
 import pandas as pd
 
 class Review():
-    def __init__(self):
-        self.columns = ["publisher_name", "date", "book_name", "rating", "heart", "content"]
+    def __init__(self, columns):
+        self.columns = columns
         self.piece = dict()
         self.__reviews = pd.DataFrame(columns=self.columns)
+        self.size = 0
+        self.row_count = 0
 
     def commit(self):
         df = pd.DataFrame.from_dict(self.piece)
-        self.__reviews.append(df, ignore_index=True)
+        self.__reviews = pd.concat([self.__reviews, df], ignore_index=True)
+        self.row_count += 1
     
     def set_review(self, colname, value):
-        self.piece[colname] = value
+        self.piece[colname] = [value]
+    
+    def get_row_count(self):
+        return self.row_count
 
     def show(self):
         return self.__reviews
 
-
-if __name__=="__main__":
-    review = Review()
-    print(review.show())
+    def save(self):
+        self.__reviews.to_excel('review.xlsx')
