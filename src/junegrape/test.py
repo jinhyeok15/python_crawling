@@ -1,5 +1,4 @@
 import unittest
-from review import Review
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 

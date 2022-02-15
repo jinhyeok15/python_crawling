@@ -1,6 +1,6 @@
 import pandas as pd
 
-class Review():
+class Bascket():
     def __init__(self, columns):
         self.columns = columns
         self.piece = dict()
@@ -22,5 +22,5 @@ class Review():
     def show(self):
         return self.__reviews
 
-    def save(self):
-        self.__reviews.to_excel('review.xlsx')
+    def save(self, save_as):
+        self.__reviews.to_excel(save_as)
