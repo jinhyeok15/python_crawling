@@ -1,20 +1,77 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.by import By  # for find_element_by_xpath
-from .bascket import Bascket
+from selenium.webdriver.common.by import By  # for find_element_xxx
+from bascket import Bascket
+
+# _get_driver_name_from_path, Crawler.findnum
+import re
 
 
-class Crawler(Bascket):
-    def __init__(self, url, webpage, columns):
-        super().__init__(columns)
-        self.url = url
-        self.webpage = webpage
-        self.driver = webdriver.Chrome('chromedriver')
-        self.driver.get(self.url)
-        html = self.driver.page_source
-        self.soup = BeautifulSoup(html, 'html.parser')
+__driver_names = [
+    'chromedriver',
+    'geckodriver',
+]
 
+
+def _get_driver_name_from_path(path):
+    for name in __driver_names:
+        p = re.compile(rf'({name})')
+        if p.search(path):
+            return name
+    return None
+
+
+class Scanner:
+    def __init__(self, url, driver_path=None):
+        driver_name = _get_driver_name_from_path(driver_path)
+        if driver_name=='chromedriver':
+            self.driver = webdriver.Chrome(driver_name)
+        elif driver_name=='geckodriver':
+            self.driver = webdriver.Firefox(driver_name)
+        else:
+            raise Exception('Unvalid driver name')
+        
+        self.driver.get(url)
+    
+    def get_driver(self):
+        return self.driver
+        
     def get_soup(self):
+        html = self.driver.page_source
+        return BeautifulSoup(html, 'html.parser')
+
+
+class SeleniumMixin:
+    def click(self, elem_name, idx=None):
+        pass
+    
+    def click_all(self, elem_name):
+        pass
+
+
+class Bs4Mixin:
+    def findtxt(self, elem_name, idx=None):
+        pass
+    
+    def findnum(self, elem_name, idx=None):
+        pass
+    
+    def find_all(self, elem_name):
+        pass
+    
+    def find(self, elem_name):
+        pass
+
+
+class Crawler(Bascket, SeleniumMixin, Bs4Mixin):
+    def __init__(self, webpage, columns, driver_path=None) -> None:
+        Bascket().__init__(columns)
+        self.webpage = webpage
+        scanner = Scanner(webpage.url, driver_path)
+        self.driver = scanner.get_driver()
+        self.soup = scanner.get_soup()
+
+    def refresh_soup(self):
         html = self.driver.page_source
         self.soup = BeautifulSoup(html, 'html.parser')
         return self
@@ -23,6 +80,7 @@ class Crawler(Bascket):
         self.webpage.next()
         return self
     
+    # Bs4Mixin implementation
     def findtxt(self, elem_name, idx=None):
         elem = self.webpage.getElem(elem_name)
         res_list = self.soup.select(elem)
@@ -39,7 +97,6 @@ class Crawler(Bascket):
             string = res_list[idx].text
         else:
             string = res_list[0].text
-        import re
         string = re.sub(r'[^0-9]', '', string)
         return int(string)
     
@@ -50,21 +107,8 @@ class Crawler(Bascket):
     def find(self, elem_name):
         elem = self.webpage.getElem(elem_name)
         return self.soup.select_one(elem)
-
-    def findtxt_and_put(self, elem_name, idx=None):
-        txt = self.findtxt(elem_name, idx)
-        self.set_review(elem_name, txt)
-        return self
     
-    def findnum_and_put(self, elem_name, idx=None):
-        num = self.findnum(elem_name, idx)
-        self.set_review(elem_name, num)
-        return self
-
-    def put(self, elem_name, value):
-        self.set_review(elem_name, value)
-        return self
-    
+    # SeleniumMixin implementation
     def click(self, elem_name, idx=None):
         elem = self.webpage.getElem(elem_name)
         if idx:
@@ -84,6 +128,21 @@ class Crawler(Bascket):
             self.driver.implicitly_wait(1)
         return self
 
+    # method by using mixin
+    def findtxt_and_put(self, elem_name, idx=None):
+        txt = self.findtxt(elem_name, idx)
+        self.set_review(elem_name, txt)
+        return self
+    
+    def findnum_and_put(self, elem_name, idx=None):
+        num = self.findnum(elem_name, idx)
+        self.set_review(elem_name, num)
+        return self
+
+    def put(self, elem_name, value):
+        self.set_review(elem_name, value)
+        return self
+
     def exec(self):
         self.driver.close()
-        return super()
+        return self

@@ -2,3 +2,7 @@ __pycache__
 data
 *.xlsx
 _example
+venv
+chromedriver.exe
+geckodriver.exe
+*.log

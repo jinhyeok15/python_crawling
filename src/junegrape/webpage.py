@@ -1,10 +1,9 @@
-from abc import *
-
 class WebPage:
-    def __init__(self, name="", elements={}) -> None:
+    def __init__(self, name="", url="", elements={}) -> None:
         self.name = name
         self.page_number = 1
         self.elements = elements
+        self.url = url
     
     def next(self):
         self.page_number += 1
