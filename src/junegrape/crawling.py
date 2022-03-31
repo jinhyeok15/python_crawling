@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By  # for find_element_xxx
-from bascket import Bascket
+from .bascket import Bascket
 
 # _get_driver_name_from_path, Crawler.findnum
 import re
@@ -65,7 +65,7 @@ class Bs4Mixin:
 
 class Crawler(Bascket, SeleniumMixin, Bs4Mixin):
     def __init__(self, webpage, columns, driver_path=None) -> None:
-        Bascket().__init__(columns)
+        Bascket(columns).__init__(columns)
         self.webpage = webpage
         scanner = Scanner(webpage.url, driver_path)
         self.driver = scanner.get_driver()
